@@ -1,0 +1,39 @@
+package com.br.apiprodutos.controller;
+
+import com.br.apiprodutos.dto.user.UserRegisterRequest;
+import com.br.apiprodutos.dto.user.UserResponse;
+import com.br.apiprodutos.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+
+@RestController
+@RequestMapping("/api/v1/auth")
+@RequiredArgsConstructor
+public class AuthController
+{
+    private final UserService service;
+
+    @Operation(
+            description = "Registra o usuário no banco para realizar requisições",
+            summary = "Registrar"
+    )
+
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Usuário registrado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Dados de requisição inválidos"),
+            @ApiResponse(responseCode = "409", description = "Usuário já existe")
+    })
+    @PostMapping("/register")
+    public ResponseEntity<UserResponse>register(@Valid @RequestBody UserRegisterRequest request)
+    {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.register(request));
+    }
+}
