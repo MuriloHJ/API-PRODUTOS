@@ -4,6 +4,7 @@ package com.br.apiprodutos.excpetion;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -12,6 +13,7 @@ import com.br.apiprodutos.dto.*;
 import javax.naming.AuthenticationException;
 import javax.swing.text.html.HTML;
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.stream.Collectors;
 import com.br.apiprodutos.dto.ErroResponse;
 
@@ -67,14 +69,21 @@ public class GlobalExcpetionHandler
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ErroResponse> handleAuthentication(AuthenticationException ex,HttpServletRequest request)
     {
-        ErroResponse erro = new ErroResponse(
-                401,
+        ErroResponse erro = ErroResponse.criar(
+                HttpStatus.UNAUTHORIZED.value(),
                 "Não autenticado",
-                "Credenciais ausentes ou inválidas.",
-                request.getRequestURI(),
-                LocalDateTime.now()
+                ex.getMessage(),
+                request.getRequestURI()
+
         );
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(erro);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<Map<String, String>> handleBadCredentials(BadCredentialsException ex)
+    {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(Map.of("message", ex.getMessage()));
     }
 }
 
